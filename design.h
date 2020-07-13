@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 
+
 /**
  * Link capability flags
  */
@@ -29,33 +30,55 @@ struct link {
 };
 
 
-enum block_flags {
-	BLOCK_LAST	= 0x1, /** _next points to first block */
-};
-
-typedef uint8_t hash_t[32];
-typedef uint8_t sig_t[64];
 
 /**
- * A single FEC block, containing a message and necessary padding
- *
- * TODO: must be < FEC symbol size
+ * Header: packet header (sent in the clear)
  */
-struct block {
-	uint16_t	id; /** sequential */
-	uint16_t	id_next; /** allow id rollover with a large message */
-	/* TODO: how large does block_id need to be not to rollover? (2020-07-12, Sirio Balmelli) */
-	/* TODO: can use block_id as IV for block FEC? (2020-07-12, Sirio Balmelli) */
-	uint16_t	data_cnt; /** how many symbols contain data (vs. how many are padding) */
-	uint16_t	last_len; /** actual data length in last symbol (followed by random padding) */
-	/* TODO: what to use as seed for padding generation? (2020-07-12, Sirio Balmelli) */
-
-	hash_t		hash;
-	hash_t		hash_next;
-	sig_t		signature; /** validate this structure */
-
-	uint8_t		random[]; /** pad to symbol size */
+struct header {
+union {
+struct {
+	uint32_t	block_id; /** monotonic, rollover */
+	uint32_t	esi;
 };
+	uint64_t	seed1;
+};
+
+union {
+struct {
+	uint32_t	block_len; /** data length (excluding 'struct leader' and padding), in Bytes */
+	uint32_t	random; /** entropy */
+};
+	uint64_t	seed2;
+};
+}
+
+
+
+/**
+ * Packet: data packet over the wire
+ */
+struct packet {
+	struct header	head; /** AEAD: authenticated */
+	uint8_t		symbol[]; /** sym_len; encrypted */
+	/* TODO: AEAD hash (2020-07-13, Sirio Balmelli) */
+};
+
+
+
+/**
+ * Leader (aka block header): first symbol in a block describes the block (esi == 0)
+ */
+struct leader {
+	struct header	head;
+
+	uint8_t		hash[32]; /* data hash (excluding 'struct leader' and padding) */
+
+	uint32_t	prev; /* block_id of previous block; self.head.block_id == beginning of sequence */
+	uint32_t	next; /* block_id of next block; self.head.block_id == end of sequence */
+
+	uint8_t		pad[]; /** pad to sym_len */
+};
+
 
 
 /**
@@ -65,18 +88,17 @@ struct block {
  * TODO: needs retransmission after channel negotiation?
  */
 struct channel {
-	/* TODO: FEC params (2020-07-12, Sirio Balmelli) */
+	/* TODO: struct ffec_params (2020-07-13, Sirio Balmelli) */
+	double		fec_ratio;
+	uint32_t	sym_len;
+
+	/* TODO: encryption keys (2020-07-13, Sirio Balmelli) */
 	/* TODO: bloom filters (2020-07-12, Sirio Balmelli) */
 	/* TODO: blocks cbuf (2020-07-12, Sirio Balmelli) */
 	struct link	links[];
 };
 
 
-/**
- * A message always *begins* a FEC block.
- */
-struct message {
-	uint16_t	len;
-	/* TODO: multi-message tracking (2020-07-13, Sirio Balmelli) */
-	/* TODO: can coalesce into block (using a chain?) (2020-07-13, Sirio Balmelli) */
-};
+
+/* TODO: track filename, metadata, etc and send it as its own block (2020-07-13, Sirio Balmelli) */
+/* TODO: some kind of a "protocol version" field or "protocol capabilities"? (2020-07-13, Sirio Balmelli) */
