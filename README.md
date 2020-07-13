@@ -53,6 +53,12 @@ and `splice()`
 - [SCTP](https://linux.die.net/man/7/sctp)
 - [NEAT](https://github.com/NEAT-project/neat)
 
+### Other Ideas
+
+1. fast in-line compression to improve bandwidth usage?
+    - https://github.com/lz4/lz4
+    - see https://i.stack.imgur.com/LPCSe.png
+
 ## Comparison with other file/data transfer technologies:
 
 1. FTP/SSH (and layers above, eg. rsync):
