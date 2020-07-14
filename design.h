@@ -32,23 +32,29 @@ struct link {
 
 
 /**
- * Header: packet header (sent in the clear)
+ * Header: leading bytes in packet (sent in the clear)
  */
 struct header {
 union {
 struct {
-	uint32_t	block_id; /** monotonic, rollover */
+	uint32_t	block_id;	/** monotonic, rollover */
 	uint32_t	esi;
 };
-	uint64_t	seed1;
+	uint64_t	seed1;		/** FEC seed1 */
 };
 
 union {
 struct {
-	uint32_t	block_len; /** data length (excluding 'struct leader' and padding), in Bytes */
-	uint32_t	random; /** entropy */
+	uint32_t	payload_len;	/** in Bytes */
+	uint16_t	sym_len;	/** in Bytes */
+	uint8_t		fec_percent;	/**
+					 * FEC percentage (multiplier in hundredths above 1.00):
+					 * 'fec_percent * 0.01 + 1.0 == fec_ratio'
+					 * 1 == 1.01; 30 == 1.3; 101 == 2.01; 255 == 3.55;
+				    	 */
+	uint8_t		entropy;	/** random number generated per-block */
 };
-	uint64_t	seed2;
+	uint64_t	seed2; /** FEC seed2 */
 };
 }
 
@@ -78,6 +84,7 @@ struct leader {
 
 	uint8_t		pad[]; /** pad to sym_len */
 };
+/* TODO: link data and metadata blockchains? (2020-07-14, Sirio Balmelli) */
 
 
 
@@ -88,13 +95,9 @@ struct leader {
  * TODO: needs retransmission after channel negotiation?
  */
 struct channel {
-	/* TODO: struct ffec_params (2020-07-13, Sirio Balmelli) */
-	double		fec_ratio;
-	uint32_t	sym_len;
-
 	/* TODO: encryption keys (2020-07-13, Sirio Balmelli) */
 	/* TODO: bloom filters (2020-07-12, Sirio Balmelli) */
-	/* TODO: blocks cbuf (2020-07-12, Sirio Balmelli) */
+	/* TODO: block buffer(s) (2020-07-12, Sirio Balmelli) */
 	struct link	links[];
 };
 

@@ -25,18 +25,15 @@ data transfer:
 
 ## Design Concepts
 
-1. All data can be expressed as *slices*:
-    ```yaml
-    0xab1234ff:  # AEAD of slice contents?
-        - pki: 0xffaabbccddee  # public key of tx
-        - seq: 42  # disambiguate repeating slices with changed data
-        - src: /mnt/media/file.mp4  # read path @tx
-        - dst: /mnt/san/file.mp4  # write path @rx
-        - oft: 0  # beginning of file
-        - len: 724545676  # end of file
-    ```
+1. Data (a "message") is variable length, but FEC blocks are not:
+    - Split large messages into a chain of blocks, each pointing to the next.
+    - Pad small messages with auto-generated random blocks to fill out the FEC matrix.
+    - Don't send padding blocks over the wire;
+        this effectively increases FEC ratio for short messages.
 
-    - UUID must not depend on data or hash thereof
+1. Do not administer a fixed metadata format:
+    - Treat metadata as just another message
+    - Let the caller define their own format
 
 ### Zero-copy architecture
 
