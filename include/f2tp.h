@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 
 
@@ -85,7 +86,7 @@ struct {
 }__attribute__((packed));
 
 hash_t			hash;		/** packet hash (future: AEAD signature) */
-}
+};
 /* TODO: assert compile-time length (2020-07-21, Sirio Balmelli) */
 
 

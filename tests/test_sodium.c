@@ -1,4 +1,4 @@
-/*#include "f2tp.h"*/
+#include "f2tp.h"
 
 int main()
 {
