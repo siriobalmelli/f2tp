@@ -5,11 +5,13 @@ project('f2tp', 'c',
 description = 'Fast FEC Transport Protocol (library)'
 homepage = 'https://github.com/siriobalmelli/f2tp'
 
+
 # dependencies
 deps = [
   dependency('libsodium'),
   dependency('nonlibc')
 ]
+
 
 # headers
 includes = include_directories(
@@ -18,6 +20,7 @@ includes = include_directories(
 install_headers(
   'include/f2tp.h'
 )
+
 
 # libf2tp
 sources = files(
@@ -34,9 +37,10 @@ libf2tp_dep = declare_dependency(
   link_with: libf2tp
 )
 
+
 # tests
 tests = [
-  'test_sodium.c'
+  'test_hash.c'
 ]
 foreach t : tests
   name = t.split('.')[0]

@@ -1,3 +1,11 @@
+/**
+ * test_hash.c
+ *
+ * Test libsodium hashing at various lengths,
+ * for docs see: https://libsodium.gitbook.io/doc/hashing/generic_hashing
+ *
+ * (c) 2020 Sirio Balmelli
+ */
 #include <sodium.h>
 #include <ndebug.h>
 #include <nonlibc.h>

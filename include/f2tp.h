@@ -52,7 +52,8 @@ uint64_t channel_new();
 typedef uint8_t hash_t[32]; /* TODO: fix this (2020-07-21, Sirio Balmelli) */
 
 enum header_version {
-	HEADER_PLAIN_BLAKE2b  = 0x1,	/** plaintext transmission, keyless crypto_generichash() (BLAKE2b) */
+	HEADER_PLAIN_BLAKE2b_16B, /** plaintext, keyless BLAKE2b crypto_generichash() 16B */
+	HEADER_PLAIN_BLAKE2b_32B, /** plaintext, keyless BLAKE2b 32B */
 }__attribute__((packed));
 
 /**
