@@ -25,27 +25,52 @@ const unsigned int hash_lengths[] = {
 
 /**
  * test hash success and consistency for a specific 'hash_len'
+ *
+ * Notice the use of sodium-specific malloc, free and memcmp.
  */
 int test_hash(unsigned int hash_len)
 {
 	int err_cnt = 0;
 	int res;
 
-	unsigned char *hashes[] = {
-		alloca(hash_len),
-		alloca(hash_len)
-	};
+	unsigned char *hash_single = alloca(hash_len);
+	unsigned char *hash_multi = alloca(hash_len);
+	crypto_generichash_state *multi_state = NULL;
 
-	for (unsigned int i = 0; i < NLC_ARRAY_LEN(hashes); i++) {
-		res = crypto_generichash(hashes[i], hash_len,
-					(void *)hash_data, strlen(hash_data),
-					NULL, 0);
-		NB_die_if(res, "len %u: Failed to hash", hash_len);
-	}
+	/**
+	 * single hash
+	 */
+	res = crypto_generichash(hash_single, hash_len,
+				(void *)hash_data, strlen(hash_data),
+				NULL, 0);
+	NB_die_if(res, "len %u: Failed to hash single", hash_len);
 
-	NB_die_if(memcmp(hashes[0], hashes[1], hash_len),
+	/**
+	 * multi hash
+	 */
+	multi_state = sodium_malloc(crypto_generichash_statebytes());
+	NB_die_if(!multi_state, "len %u: Failed to alloc multi", hash_len);
+
+	res = crypto_generichash_init(multi_state,
+				NULL, 0, hash_len);
+	NB_die_if(res, "len %u: Failed to init multi", hash_len);
+
+	res = crypto_generichash_update(multi_state,
+				(void *)hash_data, strlen(hash_data));
+	NB_die_if(res, "len %u: Failed to update multi", hash_len);
+
+	res = crypto_generichash_final(multi_state,
+				hash_multi, hash_len);
+	NB_die_if(res, "len %u: Failed to finalize multi", hash_len);
+
+	/**
+	 * compare single and multi
+	 */
+	NB_die_if(sodium_memcmp(hash_single, hash_multi, hash_len),
 		"len %u: Hash inconsistency", hash_len);
+
 die:
+	sodium_free(multi_state);
 	return err_cnt;
 }
 

@@ -2,3 +2,4 @@
 
 1. Code formatting and format checking by build system
 1. YCM setup
+1. Travis CI
