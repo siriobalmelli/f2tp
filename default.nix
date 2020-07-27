@@ -7,29 +7,37 @@
 
 with nixpkgs;
 
-stdenv.mkDerivation rec {
-  name = "f2tp";
-  version = "0.0.1";
+let
+  nonlibc = nixpkgs.nonlibc or import (builtins.fetchGit {
+    url = "https://siriobalmelli@github.com/siriobalmelli/nonlibc.git";
+    ref = "master";
+    }) {};
 
-  # just work with the current directory (aka: Git repo), no fancy tarness
-  src = nix-gitignore.gitignoreSource [] ./.;
+in
+  stdenv.mkDerivation rec {
+    name = "f2tp";
+    version = "0.0.1";
 
-  nativeBuildInputs = [
-    meson
-    ninja
-    pkg-config
-    python3
-  ];
+    # just work with the current directory (aka: Git repo), no fancy tarness
+    src = nix-gitignore.gitignoreSource [] ./.;
 
-  propagatedBuildInputs = [
-    libsodium
-  ];
+    nativeBuildInputs = [
+      meson
+      ninja
+      pkg-config
+      python3
+    ];
 
-  meta = with stdenv.lib; {
-    description = "Fast FEC Transport Protocol (library)";
-    homepage = https://github.com/siriobalmelli/f2tp;
-    license = licenses.lgpl21Plus;
-    platforms = platforms.unix;
-    maintainers = with maintainers; [ siriobalmelli ];
-  };
-}
+    propagatedBuildInputs = [
+      libsodium
+      nonlibc
+    ];
+
+    meta = with stdenv.lib; {
+      description = "Fast FEC Transport Protocol (library)";
+      homepage = https://github.com/siriobalmelli/f2tp;
+      license = licenses.lgpl21Plus;
+      platforms = platforms.unix;
+      maintainers = with maintainers; [ siriobalmelli ];
+    };
+  }

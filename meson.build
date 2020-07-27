@@ -6,9 +6,9 @@ description = 'Fast FEC Transport Protocol (library)'
 homepage = 'https://github.com/siriobalmelli/f2tp'
 
 # dependencies
-libsodium = dependency('libsodium')
 deps = [
-  libsodium
+  dependency('libsodium'),
+  dependency('nonlibc')
 ]
 
 # headers
@@ -30,6 +30,7 @@ libf2tp = library('f2tp',
 )
 libf2tp_dep = declare_dependency(
   include_directories: includes,
+  dependencies: deps,
   link_with: libf2tp
 )
 
