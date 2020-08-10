@@ -108,12 +108,15 @@ enum message_stages {
 	MESSAGE_TX_KNOWN	= 0x0002,	/** at least one 'struct message' sent (seen by network) */
 	MESSAGE_TX_DATA		= 0x0004,	/** all 'data' blocks sent */
 	MESSAGE_TX_META		= 0x0008,	/** all 'meta' blocks sent */
-	MESSAGE_CANCEL		= 0x0010,	/** cancelled by TX */
+	MESSAGE_TX_CANCEL	= 0x0010,	/** cancelled by TX, or error */
 
-	/* reserved 0x1001 */
-	MESSAGE_RX_KNOWN	= 0x1002,	/** at least one 'struct message' received */
-	MESSAGE_RX_DATA		= 0x1004,	/** all 'data' blocks decoded (or none present) */
-	MESSAGE_RX_META		= 0x1008,	/** all 'meta' blocks decoded (or none present) */
+	MESSAGE_TX_DONE		= 0x0080,	/** all known receivers have received; can dealloc */
+
+	/* reserved 0x0100 */
+	MESSAGE_RX_KNOWN	= 0x0200,	/** at least one 'struct message' received */
+	MESSAGE_RX_DATA		= 0x0400,	/** all 'data' blocks decoded (or none present) */
+	MESSAGE_RX_META		= 0x0800,	/** all 'meta' blocks decoded (or none present) */
+	MESSAGE_RX_CANCEL	= 0x1000,	/** cancelled or could not decode */
 };
 
 /**
