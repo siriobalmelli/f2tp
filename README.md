@@ -1,4 +1,4 @@
-# Fast FEC Transport Protocol library (f2tp)
+# Fast FEC Transport Protocol library (f2tp) [![Hits-of-Code](https://hitsofcode.com/github/siriobalmelli/f2tp)](https://hitsofcode.com/view/github/siriobalmelli/f2tp)
 
 *STATUS*: pre-Alpha
 
